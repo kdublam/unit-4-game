@@ -14,17 +14,17 @@ $(document).ready(function () {
         this.name = name;
         this.hp = hp;
         this.ap = attack;
-        this.cp= counter;
+        this.cp = counter;
         this.pic = pic;
     }
 
     // Variables for characters and link to images in HTML
 
     function charValue() {
-        var obi = new character("Obi-Wan Kenobi", 150, 20, 15, "assets/images/obi.jpg");
-        var luke = new character("Luke Skywalker", 100, 15, 10, "assets/images/luke.jpg");
-        var vader = new character("Darth Vader", 200, 25, 20, "assets/images/vader.jpg");
-        var pal = new character("Emperor Palpatine", 160, 15, 20, "assets/images/pal.jpg");
+        var obi = new character("Obi-Wan Kenobi", 300, 10, 25, "assets/images/obi.jpg");
+        var luke = new character("Luke Skywalker", 150, 8, 20, "assets/images/luke.jpg");
+        var vader = new character("Darth Vader", 400, 12, 30, "assets/images/vader.jpg");
+        var pal = new character("Emperor Palpatine", 280, 10, 22, "assets/images/pal.jpg");
 
         charArray.push(obi, luke, vader, pal);
     }
@@ -64,20 +64,20 @@ $(document).ready(function () {
     // }
 
     //Increase attack function//
-    character.prototype.attackIncre = function(){
+    character.prototype.attackIncre = function () {
         this.ap = this.ap + playerAttack;
     }
 
     //Attack function//
 
-    character.prototype.attack = function(char){
+    character.prototype.attack = function (char) {
         char.hp = char.hp - this.ap;
         this.attackIncre();
     }
 
     //Counter attach function//
 
-    character.prototype.counter = function(char){
+    character.prototype.counter = function (char) {
         char.hp = char.hp - this.cp;
     }
 
@@ -87,6 +87,7 @@ $(document).ready(function () {
     // Click Function for character and enemy selection
 
     $(document).on("click", "img", function () {
+        $("#win").children().remove();
         if (!moveToPlayer) {
             for (i = 0; i < charArray.length; i++) {
                 if (charArray[i].name === this.id) {
@@ -108,7 +109,7 @@ $(document).ready(function () {
             printChar("#character", "#enemy");
         }
 
-        else if (moveToPlayer && !moveToDefender && this.id != player.name){
+        else if (moveToPlayer && !moveToDefender && this.id != player.name) {
             for (i = 0; i < charArray.length; i++) {
                 if (charArray[i].name === this.id) {
                     $("#defender").append(this);
@@ -125,91 +126,78 @@ $(document).ready(function () {
 
     //attack button function
     $(document).on("click", "#attack", function () {
-        if (moveToPlayer && moveToDefender){
-            if (player.hp > 0 && defender.hp >0){
+        $("#message").children().remove();
+        $("#playerhealth").children().remove();
+        $("#defenderhealth").children().remove();
+        $("#win").children().remove();
+
+
+        if (moveToPlayer && moveToDefender) {
+            if (player.hp > 0 && defender.hp > 0) {
                 player.attack(defender);
                 defender.counter(player);
+                var printAttk = $("<p>");
+                printAttk.attr("id", "attackinfo");
+                var printCount = $("<p>");
+                printCount.attr("id", "counterinfo");
+                $("#message").append(printAttk);
+                $("#message").append(printCount);
+                $("#attackinfo").append('You attacked ' + defender.name + ' for ' + player.ap);
+                $("#counterinfo").append(defender.name + ' attacked you back for ' + defender.cp);
                 console.log("player's health " + player.hp);
                 console.log("defender's health " + defender.hp);
-                if (player.hp <= 0){
-                    console.log("player lose");
-                }
-                else if (defender.hp <= 0){
+                var printPlayerhp = $("<p>");
+                printPlayerhp.attr("id", "playerhp");
+                $("#playerhealth").append(printPlayerhp);
+                $("#playerhp").append(player.name + "'s HP: " + player.hp + "-hp");
+                var printDefenderhp = $("<p>");
+                printDefenderhp.attr("id", "defenderhp");
+                $("#defenderhealth").append(printDefenderhp);
+                $("#defenderhp").append(defender.name + "'s HP: " + defender.hp + "-hp");
+
+                if (defender.hp <= 0 && charArray.length > 0) {
+                    $("#message").children().remove();
+                    var printWin = $("<p>");
+                    printWin.attr("id", "winmessage");
+                    $("#win").append(printWin);
+                    $("#winmessage").append('You have defeated ' + defender.name + ", choose your next enemy.");
                     console.log("defender lose")
                     moveToDefender = false;
+                    $("#defenderhealth").children().remove();
+
                     $("#defender").children().remove();
 
                 }
+                else if (charArray.length === 0) {
+                    moveToDefender = false;
+                    $("#message").children().remove();
+                    var printWin = $("<p>");
+                    printWin.attr("id", "winmessage");
+                    $("#win").append(printWin);
+                    $("#defender").children().remove();
+                    $("#message").children().remove();
+                    $("#defenderhealth").children().remove();
+                    $("#winmessage").append('You have defeated all your enemies. You win!');
+                }
             }
-            else if (defender.hp <=0){
-
+            if (player.hp <= 0) {
+                console.log("player lose");
+                $("#message").children().remove();
+                $("#playerhealth").children().remove();
+                $("#defenderhealth").children().remove();
+                var printLost = $("<p>");
+                printLost.attr("id", "lostmessage");
+                $("#win").append(printLost);
+                $("#lostmessage").append('You have been defeated...');
             }
         }
 
     })
 
     //Reset button function
-    $(document).on("click", "#reset", function(){
+    $(document).on("click", "#reset", function () {
         location.reload();
     })
-
-    
-
-
-
-
-
-
-    // Function to display selected character
-    // if (charSelect === undefined || charSelect.length === 0){
-    //     $(".charImg").on("click", function () {
-    //         $("#player").append(this);
-    //         charSelect.push(charPic.data());
-    //         console.log(charSelect);
-
-    // for (i = 0; i < character.length; i++){
-    //     if( character[i].name != charSelect.name){
-    //         charLeft.push(character[i]);
-    //     }
-    //     console.log(charLeft + "This is the characters left");
-    // }
-
-
-    // else {
-    //     $(".charImg").on("click", function () {
-    //         $("#defender").append(this);
-    //         enemySelect.push(charPic.data());
-    //     });
-    // }
-    // else {
-    //     $(".charImg").on("click", function () {
-    //         $("#defender").append(this);
-    //         charSelect.push(charPic.data());
-    //         console.log(charSelect);
-    //     });
-    // }
-
-
-    // Function to display enemy character in "defender area"
-
-    // Attack function
-    // Loop to keep track of attack power (increase each time player clicks attack button)
-
-    // Loop to keep track of enemy's HP 
-
-    //When enemy's HP reaches zero, remove from screen
-
-    //When no more enemy on screen, player wins
-
-
-
-    //JSON = javascript object notation
-
-
-
-
-
-
 })
 
 
